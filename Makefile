@@ -10,8 +10,10 @@ SANITIZER	=	-fsanitize=address
 # LREADLINE = -L/Users/jeekim/.brew/opt/readline/lib
 #LREADLINE = -L/Users/jujeon/.brew/opt/readline/lib
 #IREADLINE = -I/Users/jujeon/.brew/opt/readline/include
-LREADLINE	=	-L/opt/homebrew/opt/readline/lib
-IREADLINE	=	-I/opt/homebrew/opt/readline/include
+# LREADLINE	=	-L/opt/homebrew/opt/readline/lib
+# IREADLINE	=	-I/opt/homebrew/opt/readline/include
+LREADLINE = -L/Users/jujeon/.brew/opt/readline/lib
+IREADLINE = -I/Users/jujeon/.brew/opt/readline/include
 
 RM			=	rm -f
 
