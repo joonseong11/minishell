@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jujeon <jujeon@student.42seoul.kr>         +#+  +:+       +#+        */
+/*   By: jeekim <jeekim@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/29 18:27:19 by sumsong           #+#    #+#             */
-/*   Updated: 2022/10/03 10:10:54 by jujeon           ###   ########seoul.kr  */
+/*   Updated: 2022/10/01 16:23:08 by jeekim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@
 # include <readline/history.h>
 # include <limits.h>
 
-# define ERROR			1
-# define SUCCESS		0
-# define BUFFER_SIZE	100
+# define ERROR		1
+# define SUCCESS	0
+# define BUFFER_SIZE 100
 
 char			**g_env_array;
 
@@ -158,7 +158,7 @@ t_env	*env_lstnew(char *env);
 void	env_lstadd_back(t_env **lst, t_env *new);
 void	make_env_list(char **envp, t_struct *ds);
 void	env_lstclear(t_env **lst);
-void	env_lstiter(t_env *lst, void (*f)(char *));
+void	env_lstiter(t_env *lst, void (*f)(char *));		// tmp_func
 
 void	make_g_env_array(char **envp);
 
@@ -260,27 +260,27 @@ int		tree_parser(t_node *node, int *flag);
 
 int		count_process(t_node *node);
 int		is_builtin_func(t_node *node);
-void	child_process(t_node *cur_phrase, t_func_type builtin[], int backup_fd);
+void	child_process(t_node *cur_phrase, t_func_type builtin[]);
 void	fork_process(t_struct *ds, int cnt, t_func_type builtin[]);
-void	run_builtin(t_node *cur_cmd, t_func_type builtin[], int func);
+void	run_builtin(t_node *cur_cmd, t_func_type builtin[],
+			int func, int old_stdin);
 void	execute(t_struct *ds);
-void	cmd_action(t_node *cur_cmd, t_func_type builtin[]);
+void	cmd_action(t_node *cur_cmd, t_func_type builtin[], int old_stdin);
 void	cmd_action_init(
-			t_node *cur_cmd, char ***p_args, int *p_func_idx);
-void	redir_action(t_node *cur_redir, int b_child_process, int *predir_erred);
+			t_node *cur_cmd, char ***p_args, int *p_func_idx, int old_stdin);
+void	redir_action(t_node *cur_redir);
 char	**lst_to_2d_array(t_node *arg);
 void	e_dup2(int fd, int std);
 int		is_absolute_path(char *path);
 int		is_relative_path(char *path);
 char	*search_path(char *cmd);
-int		open_redir_file(char *file, int mode, int b_child_process);
-int		exec_builtin(t_struct *ds, int func_idx, t_func_type *builtin);
+void	open_redir_file(char *file, int mode);
 
 /*
  *						func_frame
 */
 
-void	child_pipe(t_node **cur_process, t_func_type builtin[], int backup_fd);
+void	child_pipe(t_node **cur_process, t_func_type builtin[]);
 void	e_execve(char *path, char **args);
 char	*no_search_path(t_node *cur_cmd, char **args, char *cmd);
 

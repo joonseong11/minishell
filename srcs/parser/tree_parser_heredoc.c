@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   tree_parser_heredoc.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jeekim <jeekim@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/01 16:08:43 by jeekim            #+#    #+#             */
-/*   Updated: 2022/10/01 16:08:44 by jeekim           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../minishell.h"
 
 static char	*e_make_expnd_str(char *str)
@@ -98,7 +86,10 @@ char	**func_heredoc(t_node *node, char *delimiter, int quoted)
 	}
 	old_stdin = dup(STDIN_FILENO);
 	e_write_heredoc_str_to_file(fd, delimiter, quoted);
-	dup2(old_stdin, STDIN_FILENO);
+	if (set_or_get_heredoc_status(GET) == CTRL_C)
+		e_dup2(old_stdin, STDIN_FILENO);
+	else
+		close(old_stdin);
 	close(fd);
 	change_heredoc_node_to_redirect(node, filename);
 	return (NULL);

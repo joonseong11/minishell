@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   utils_system.c                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jeekim <jeekim@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/01 16:09:38 by jeekim            #+#    #+#             */
-/*   Updated: 2022/10/01 16:29:51 by jeekim           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../minishell.h"
 
 void	ft_exit(int error)
@@ -35,7 +23,7 @@ void	cmd_not_found_error(t_node *cmd)
 	write(STDERR_FILENO, err_str, ft_strlen(err_str));
 	err_str = cmd->content;
 	write(STDERR_FILENO, err_str, ft_strlen(err_str));
-	err_str = " 🍾 hey~ command not found\n";
+	err_str = " command not found\n";
 	write(STDERR_FILENO, err_str, ft_strlen(err_str));
 	ft_exit(CMD_NOT_FOUND);
 }

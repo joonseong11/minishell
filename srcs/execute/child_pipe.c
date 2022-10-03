@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   child_pipe.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jeekim <jeekim@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/01 16:08:18 by jeekim            #+#    #+#             */
-/*   Updated: 2022/10/01 16:08:19 by jeekim           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../minishell.h"
 
 int	get_child_exit_value(int status)
@@ -21,19 +9,23 @@ int	get_child_exit_value(int status)
 	return (0);
 }
 
-void	child_process(t_node *cur_phrase, t_func_type builtin[])
+void	child_process(t_node *cur_phrase, t_func_type builtin[], int backup_fd)
 {
-	int	old_stdin;
+	int	redir_errored;
+	int	b_child_process;
 
-	old_stdin = dup(STDIN_FILENO);
+	close(backup_fd);
+	redir_errored = 0;
+	b_child_process = 1;
 	if (cur_phrase->left)
-		redir_action(cur_phrase->left);
+		redir_action(cur_phrase->left, b_child_process, &redir_errored);
 	if (cur_phrase->right)
-		cmd_action(cur_phrase->right, builtin, old_stdin);
+		cmd_action(cur_phrase->right, builtin);
 	exit(set_or_get_status(-1));
 }
 
-void	child_pipe(t_node **cur_process, t_func_type builtin[])
+void	child_pipe(t_node **cur_process, t_func_type builtin[],
+				int backup_fd)
 {
 	int		fd[2];
 	pid_t	pid;
@@ -44,7 +36,7 @@ void	child_pipe(t_node **cur_process, t_func_type builtin[])
 	{
 		close(fd[0]);
 		e_dup2(fd[1], STDOUT_FILENO);
-		child_process((*cur_process)->left, builtin);
+		child_process((*cur_process)->left, builtin, backup_fd);
 	}
 	else
 	{
@@ -52,6 +44,18 @@ void	child_pipe(t_node **cur_process, t_func_type builtin[])
 		e_dup2(fd[0], STDIN_FILENO);
 	}
 	*cur_process = (*cur_process)->right;
+}
+
+void	wait_for_remain_child_processes(void)
+{
+	int	status;
+
+	while (1)
+	{
+		waitpid(-1, &status, 0);
+		if (errno == ECHILD)
+			break ;
+	}
 }
 
 void	fork_process(t_struct *ds, int cnt, t_func_type builtin[])
@@ -66,17 +70,16 @@ void	fork_process(t_struct *ds, int cnt, t_func_type builtin[])
 	cur_node = ds->root_node;
 	loop = 0;
 	while (cnt > ++loop)
-		child_pipe(&cur_node, builtin);
+		child_pipe(&cur_node, builtin, backup_fd);
 	pid = fork();
 	if (pid == 0)
-		child_process(cur_node->left, builtin);
+		child_process(cur_node->left, builtin, backup_fd);
 	else
 	{
+		e_dup2(backup_fd, STDIN_FILENO);
 		status = 0;
 		waitpid(pid, &status, 0);
 		set_or_get_status(get_child_exit_value(status));
-		while (cnt-- > loop)
-			wait(NULL);
-		e_dup2(backup_fd, STDIN_FILENO);
+		wait_for_remain_child_processes();
 	}
 }
